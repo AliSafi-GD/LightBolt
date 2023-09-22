@@ -3,7 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterMovement : MonoBehaviour
+public interface ICharacterView
+{
+    Transform viewTransform { get; }
+}
+
+public class CharacterMovement : MonoBehaviour, ICharacterView
 {
     [SerializeField] private float Height;
     [SerializeField] private List<GroundItem> grounds = new List<GroundItem>();
@@ -15,6 +20,8 @@ public class CharacterMovement : MonoBehaviour
     public GroundItem forwardGround;
     public GroundItem StartGround;
     public float startRot;
+
+    public Transform viewTransform => transform;
 
     private void Awake()
     {
