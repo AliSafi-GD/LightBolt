@@ -1,0 +1,9 @@
+newmtl Body
+Kd 1 1 1
+d 1
+
+newmtl target_Head
+map_Kd GridBox_Default.png
+Kd 0 0 0
+d 1
+

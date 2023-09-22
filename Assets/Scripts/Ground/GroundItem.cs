@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GroundItem : MonoBehaviour
 {
-    public int Height;
+    public float Height;
     public Transform center;
-    public Vector3 position => center.position;
+    public Vector3 position => transform.position;
 }
