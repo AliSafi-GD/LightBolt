@@ -7,11 +7,22 @@ using UnityEngine.UI;
 public class CommandItemUI : MonoBehaviour
 {
     private Button btn;
-    public CommandType Type;
-    [SerializeField] private GameManager _manager;
-    private void Start()
+
+    private Button Btn
     {
-        btn = GetComponent<Button>();
-        btn.onClick.AddListener(()=>_manager.AddCommand(FactoryMapper.GetCommand(Type)));
+        get
+        {
+            if (btn == null)
+                btn = GetComponent<Button>();
+            return btn;
+        }
+    }
+    public ICommand Command;
+
+    public void SetData(ICommand command,Action btnAct)
+    {
+        this.Command = command;
+        Btn.onClick.AddListener(()=>btnAct?.Invoke());
+        // btn.onClick.AddListener(()=>_manager.AddCommand(FactoryMapper.GetCommand(Type)));
     }
 }

@@ -5,25 +5,107 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private List<Sprite> sprites;
-    [SerializeField] private CommandLable commandLabel;
+    // ToDo : درست کردن ازتفاع کاراکتر موقع ست شدن روی استارت گراند
+    // ToDo : موقع بردن اگر مراحل یک فصل تمام شده بودن به صفحه انتخاب فصل ها برود
+    // event 
+    public static Action OnTurnOnLight;
+    // Game Resource
+    [System.Serializable]
+    public struct Season
+    {
+        public int SeasonNumber;
+        public List<LevelData> Levels;
+    }
+
+    [SerializeField] private List<Season> Seasons;
+    [SerializeField] private LevelData currentLevelData;
+    [SerializeField] private LevelView CurrentLevelView;
+
+    
+    // Commands UI
     [SerializeField] GameObject labelContainer;
+    [SerializeField] private GameObject CommandsUsableContainer;
+    [SerializeField] private List<CommandItemUI> CommandUsable = new List<CommandItemUI>();
+    [SerializeField] private List<CommandItemUI> CommandsStack = new List<CommandItemUI>();
+    
+    
+    // Game UI
+    public GameObject WinBtn;
     
     public CharacterLogic _characterLogic;
-    public List<GroundItem> GroundItems = new List<GroundItem>();
-    private List<CommandLable> _lables = new List<CommandLable>();
+    public List<GroundItem> CurrentLevelGroundsItems => CurrentLevelView.Grounds;
 
     // managers
     private CommandsManager _commandsManager;
     public CharacterMovement _character;
+
     private void Awake()
     {
-       // CommandsManager.OnAddCommand += AddCommand;
+        OnTurnOnLight += _OnTurnOnLight;
+        CreateLevel(1, 2);
+        CreateUsableUICommands();
     }
 
-    private void OnDestroy()
+    private void _OnTurnOnLight()
     {
-      //  CommandsManager.OnAddCommand -= AddCommand;
+        CurrentLevelView.CurrentLightTurnedOn += 1;
+        var isWin = CheckWin(CurrentLevelView);
+        if(isWin)
+            WinBtn.SetActive(true);
+    }
+
+    void CreateLevel(int seasonNumber,int levelNumber)
+    {
+        var levels = Seasons.Find(x => x.SeasonNumber == seasonNumber).Levels;
+        currentLevelData = levels.Find(x => x.LevelNumber == levelNumber);
+        CurrentLevelView = Instantiate(currentLevelData.GetLevelPrefabFromResource);
+        CurrentLevelView.transform.position = Vector3.zero;
+    }
+
+    public void NextLevel()
+    {
+        Destroy(CurrentLevelView.gameObject);
+        CreateLevel(1,currentLevelData.LevelNumber+1);
+       
+        _characterLogic.grounds = CurrentLevelGroundsItems;
+        _character.StartGround = CurrentLevelView.StartGround;
+        _character.startRot = CurrentLevelView.StartAngle;
+        Reset();
+        
+        foreach (var commandItemUI in CommandsStack)
+        {
+            Destroy(commandItemUI.gameObject);
+        }
+        CommandsStack.Clear();
+        
+        foreach (var commandItemUI in CommandUsable)
+        {
+            Destroy(commandItemUI.gameObject);
+        }
+        CommandUsable.Clear();
+        
+        _commandsManager.Reset();
+        
+        
+        CreateUsableUICommands();
+        WinBtn.SetActive(false);
+    }
+    CommandItemUI CreateCommandUI(CommandType command,Transform parent)
+    {
+        return Instantiate(Resources.Load<CommandItemUI>($"UI/Commands/Command item _ {command.ToString()}"),parent);
+    }
+    void CreateUsableUICommands()
+    {
+        foreach (var command in CurrentLevelView.CommandsRequired)
+        {
+            var c = CreateCommandUI(command,CommandsUsableContainer.transform);
+            CommandUsable.Add(c);
+            var Icommand = FactoryMapper.GetCommand(command);
+            c.SetData(Icommand,()=>
+            {
+                AddCommand(Icommand);
+            });
+        }
     }
 
     private void Start()
@@ -34,7 +116,9 @@ public class GameManager : MonoBehaviour
     {
         _commandsManager = new CommandsManager(this);
         _characterLogic = new CharacterLogic(_character, _character);
-        _characterLogic.grounds = GroundItems;
+        _characterLogic.grounds = CurrentLevelGroundsItems;
+        _character.StartGround = CurrentLevelView.StartGround;
+        _character.startRot = CurrentLevelView.StartAngle;
     }
 
     public void RunCommands()
@@ -45,12 +129,7 @@ public class GameManager : MonoBehaviour
     public void Reset()
     {
         _character.Reset();
-        _commandsManager.Reset();
-        for (int i = 0; i < _lables.Count; i++)
-        {
-            Destroy(_lables[i].gameObject);
-        }
-        _lables.Clear();
+        //_commandsManager.Reset();
     }
 
     private void Update()
@@ -61,30 +140,24 @@ public class GameManager : MonoBehaviour
     }
     public void AddCommand(ICommand command)
     {
-        var item = InstantiateItemToContainer(GetSprite(command.Type));
-        _lables.Add(item);
-        item.Init(this,command);
+        var item = CreateCommandUI(command.Type, labelContainer.transform);
+        CommandsStack.Add(item);
+        item.SetData(command, () =>
+        {
+            RemoveCommand(command);
+        });
         _commandsManager.AddCommandToMain(command);
     }
 
     public void RemoveCommand(ICommand command)
     {
-        var item = _lables.Find(x => x._command == command);
-        _lables.Remove(item);
+        var item = CommandsStack.Find(x => x.Command == command);
+        CommandsStack.Remove(item);
         Destroy(item.gameObject);
         _commandsManager.RemoveCommand(command);
     }
-    CommandLable InstantiateItemToContainer(Sprite sprite)
-    {
-        var item = MonoHelper.Instantiate(commandLabel,labelContainer.transform);
-        item.SetSprite(sprite);
-        item.transform.localScale = Vector3.one;
-        return item;
-    }
-    Sprite GetSprite(CommandType type)
-    {
-        return sprites.Find(x => x.name == type.ToString());
-    }
+
+    bool CheckWin(ILevelConfig data) => data.CurrentLightTurnedOn == data.LightCount;
 }
 public class CommandsManager
 {
@@ -123,9 +196,10 @@ public class CommandsManager
 
     IEnumerator IE_RunCommands()
     {
-        Debug.Log("start IE_EunCommands");
+       
         foreach (var command in _commands)
         {
+            Debug.Log($"start {command.Type}");
             _gameManager._characterLogic.FindForwardGround();
             bool isDone = false;
             command.Execute(new RequestData()
@@ -135,7 +209,7 @@ public class CommandsManager
             }, (x) => isDone = true);
 
             yield return new WaitUntil(()=>isDone);
-
+            Debug.Log($"end {command.Type}");
         }
     }
 }

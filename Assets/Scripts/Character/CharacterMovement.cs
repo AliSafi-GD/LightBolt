@@ -21,7 +21,7 @@ public interface ICharacterData
 public class CharacterMovement : MonoBehaviour , ICharacterView , ICharacterData
 {
 
-    private void Awake()
+    private void Start()
     {
         Reset();
     }

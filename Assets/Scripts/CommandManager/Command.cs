@@ -86,7 +86,6 @@ public class Jump : ICommand
 
     }
 }
-
 public class TurnOnLight : ICommand
 {
     public CommandType Type => CommandType.TurnOnLight;
@@ -97,6 +96,7 @@ public class TurnOnLight : ICommand
         {
             requestData.CharacterData.currentGround.GetComponent<GroundLight>().TurnOnLight();
             complete?.Invoke(CommandStatus.Accept);
+            GameManager.OnTurnOnLight();
         }
         else
         {
@@ -110,7 +110,8 @@ public enum CommandType
     ClockWiseRotate,
     CounterClockWiseRotate,
     Jump,
-    TurnOnLight
+    TurnOnLight,
+    Program1
 }
 public enum CommandStatus
 {

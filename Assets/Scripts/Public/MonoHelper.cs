@@ -42,7 +42,8 @@ public class MonoHelper : MonoBehaviour
     {
         while (!transform.rotation.eulerAngles.Equals(NextAngle.eulerAngles))
         {
-            transform.rotation =Quaternion.Lerp(transform.rotation,NextAngle,10*Time.deltaTime);
+          //  Debug.Log(transform.rotation.eulerAngles + "            "+NextAngle.eulerAngles + "     ");
+            transform.rotation =Quaternion.RotateTowards(transform.rotation,NextAngle,200*Time.deltaTime);
             yield return null;
         }
         Complete?.Invoke();
