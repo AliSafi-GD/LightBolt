@@ -10,6 +10,7 @@
                 CommandType.ClockWiseRotate => new RotateClockwise(),
                 CommandType.CounterClockWiseRotate => new RotateCounterClockwise(),
                 CommandType.TurnOnLight => new TurnOnLight(),
+                CommandType.Program1=>new Program1(),
                 _ => default
             };
         }

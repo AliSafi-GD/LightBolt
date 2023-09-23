@@ -19,6 +19,11 @@ public class LevelView : MonoBehaviour ,ILevelConfig,ICommandRequired
     [field:SerializeField] public GroundItem StartGround { get; set; }
     [field:SerializeField ] public float StartAngle { get; set; }
     [field:SerializeField] public List<CommandType> CommandsRequired { get; set; }
+
+    public List<CommandsManager> CommandsManagers = new List<CommandsManager>
+    {
+        new CommandsManager()
+    };
 }
 
 interface ICommandRequired

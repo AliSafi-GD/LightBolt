@@ -18,21 +18,21 @@ public interface ICharacterData
     public GroundItem StartGround{get;set;}
     public float startRot { get; set; }
 }
-public class CharacterMovement : MonoBehaviour , ICharacterView , ICharacterData
+public class CharacterMovement : MonoBehaviour , ICharacterView , ICharacterData ,IInitializable
 {
 
     private void Start()
     {
-        Reset();
+        //Reset();
     }
     public void Reset()
     {
         currentGround = StartGround;
-        Transform.position = new Vector3(StartGround.position.x,0,StartGround.position.z);
+        Transform.position = new Vector3(StartGround.position.x,StartGround.Height,StartGround.position.z);
         Transform.rotation = Quaternion.AngleAxis(startRot, Vector3.up);
         NextMove = currentGround.position;
         NextRotate = Quaternion.AngleAxis(startRot, Vector3.up);
-        Height = 0;
+        Height = StartGround.Height;
     }
 
     public Transform Transform => transform;
@@ -43,4 +43,8 @@ public class CharacterMovement : MonoBehaviour , ICharacterView , ICharacterData
     [field:SerializeField]public GroundItem forwardGround { get; set; }
     [field:SerializeField]public GroundItem StartGround { get; set; }
     [field:SerializeField]public float startRot { get; set; }
+    public void Init()
+    {
+        Reset();
+    }
 }

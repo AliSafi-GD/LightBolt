@@ -7,9 +7,11 @@ public class Forward : ICommand
 {
     public CommandType Type => CommandType.Forward;
     public CommandStatus Status { get; set; }
+    public Action<CommandStatus> complete { get; set; }
 
     public void Execute(RequestData requestData, Action<CommandStatus> complete)
     {
+        this.complete = complete;
         if (requestData.CharacterData.forwardGround == null)
         {
             complete?.Invoke(CommandStatus.Reject);
@@ -34,9 +36,11 @@ public class RotateClockwise : ICommand
 {
     public CommandType Type => CommandType.ClockWiseRotate;
     public CommandStatus Status { get; set; }
+    public Action<CommandStatus> complete { get; set; }
 
     public void Execute(RequestData requestData, Action<CommandStatus> complete)
     {
+        this.complete = complete;
         var NextRotate = requestData.CharacterData.NextRotate;
         var character = requestData.CharacterView.Transform;
         NextRotate = Quaternion.AngleAxis(NextRotate.eulerAngles.y + 90,Vector3.up);
@@ -48,9 +52,11 @@ public class RotateCounterClockwise : ICommand
 {
     public CommandType Type => CommandType.ClockWiseRotate;
     public CommandStatus Status { get; set; }
+    public Action<CommandStatus> complete { get; set; }
 
     public void Execute(RequestData requestData, Action<CommandStatus> complete)
     {
+        this.complete = complete;
         var NextRotate = requestData.CharacterData.NextRotate;
         var character = requestData.CharacterView.Transform;
         NextRotate = Quaternion.AngleAxis(NextRotate.eulerAngles.y - 90,Vector3.up);
@@ -62,9 +68,11 @@ public class Jump : ICommand
 {
     public CommandType Type => CommandType.Jump;
     public CommandStatus Status { get; set; }
+    public Action<CommandStatus> complete { get; set; }
 
     public void Execute(RequestData requestData, Action<CommandStatus> complete)
     {
+        this.complete = complete;
 
         if (requestData.CharacterData.Height + 0.5f == requestData.CharacterData.forwardGround.Height ||
             requestData.CharacterData.Height - 0.5f == requestData.CharacterData.forwardGround.Height)
@@ -90,8 +98,11 @@ public class TurnOnLight : ICommand
 {
     public CommandType Type => CommandType.TurnOnLight;
     public CommandStatus Status { get; set; }
+    public Action<CommandStatus> complete { get; set; }
+
     public void Execute(RequestData requestData, Action<CommandStatus> complete)
     {
+        this.complete = complete;
         if (requestData.CharacterData.currentGround.GetComponent<GroundLight>())
         {
             requestData.CharacterData.currentGround.GetComponent<GroundLight>().TurnOnLight();
@@ -102,6 +113,19 @@ public class TurnOnLight : ICommand
         {
             complete?.Invoke(CommandStatus.Reject);
         }
+    }
+}
+
+public class Program1 : ICommand
+{
+    public CommandType Type => CommandType.Program1;
+    public CommandStatus Status { get; set; }
+    public Action<CommandStatus> complete { get; set; }
+
+    public void Execute(RequestData requestData, Action<CommandStatus> complete)
+    {
+        GameManager.CommandsManager.Find(x=>x.name == "Program").RunCommands(requestData,()=>complete?.Invoke(CommandStatus.Accept));
+        this.complete = complete;
     }
 }
 public enum CommandType
@@ -123,6 +147,7 @@ public interface ICommand
 {
     CommandType Type{get;}
     CommandStatus Status { get; set; }
+    Action<CommandStatus> complete { get; set; }
     void Execute(RequestData requestData,Action<CommandStatus> complete);
 }
 

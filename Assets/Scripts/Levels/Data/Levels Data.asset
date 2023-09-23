@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 278a5fdc76794ceba667ea55c0166c7b, type: 3}
+  m_Name: Levels Data
+  m_EditorClassIdentifier: 
+  Seasons:
+  - SeasonNumber: 1
+    Levels:
+    - {fileID: 11400000, guid: bd4c3392ebc9c1f4a8a7e17cfc96c4f7, type: 2}
+    - {fileID: 11400000, guid: 7f06e54d6824338468c597a1a76d7028, type: 2}
+    - {fileID: 11400000, guid: 1c896c5afd8fb734487fcfba12e90649, type: 2}
+    - {fileID: 11400000, guid: 8205864f428902b4db30590ec25c25ca, type: 2}
+    - {fileID: 11400000, guid: 9a499a4df6b1c3a409fa2f5a6bf4d811, type: 2}
+    - {fileID: 11400000, guid: b6fbe7e0dbfc89142a936f1451f0997c, type: 2}
+    - {fileID: 11400000, guid: 56aeda9d85130824e9180a1ba645d595, type: 2}
+    - {fileID: 11400000, guid: 011524e24585ea5438df56c3721cfb97, type: 2}
+  - SeasonNumber: 2
+    Levels:
+    - {fileID: 11400000, guid: efcd182ab46f67c4eaa2540096c686ad, type: 2}
