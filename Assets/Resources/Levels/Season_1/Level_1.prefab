@@ -54,10 +54,10 @@ MonoBehaviour:
   - {fileID: 2227194324623951888}
   <StartGround>k__BackingField: {fileID: 2839613957623906593}
   <StartAngle>k__BackingField: 90
-  <CommandsRequired>k__BackingField: 000000000400000005000000
+  <CommandsRequired>k__BackingField: 0000000004000000
   CommandsManagers:
   - name: Main
-  - name: Program
+    LimitCount: 12
 --- !u!1001 &3964448152516482954
 PrefabInstance:
   m_ObjectHideFlags: 0

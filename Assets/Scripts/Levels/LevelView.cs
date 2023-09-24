@@ -1,7 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
+using System.Collections.Generic;
+using Commands.Enums;
+using Ground;
+using Manager;
+using UnityEngine;
+interface ICommandRequired
+{
+    [field:SerializeField] public List<CommandType> CommandsRequired { get; set; }
+}
 interface ILevelConfig
 {
     [field:SerializeField] public int LightCount { get; set; }
@@ -20,15 +26,20 @@ public class LevelView : MonoBehaviour ,ILevelConfig,ICommandRequired
     [field:SerializeField ] public float StartAngle { get; set; }
     [field:SerializeField] public List<CommandType> CommandsRequired { get; set; }
 
-    public List<CommandsManager> CommandsManagers = new List<CommandsManager>
+    public List<Program> CommandsManagers = new List<Program>
     {
-        new CommandsManager()
+        new Program()
     };
+
+    private void Start()
+    {
+        GameManager.OnResetLevel += () =>
+        {
+            CurrentLightTurnedOn = 0;
+        };
+    }
 }
 
-interface ICommandRequired
-{
-    [field:SerializeField] public List<CommandType> CommandsRequired { get; set; }
-}
+
 
 

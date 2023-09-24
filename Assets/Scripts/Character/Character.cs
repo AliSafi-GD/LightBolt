@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Ground;
 using UnityEngine;
 
 public interface ICharacterView
@@ -14,27 +15,27 @@ public interface ICharacterData
     public GroundItem StartGround{get;set;}
     public GroundItem CurrentGround{get;set;}
     public float startRot { get; set; }
-    void SetSetup(GroundItem startGround,float startRot,float Height);
+    void Init(GroundItem startGround,float startRot,float Height);
     
 }
 
 
-public class Character : MonoBehaviour , ICharacterView , ICharacterData ,IInitializable
+public class Character : MonoBehaviour , ICharacterView , ICharacterData 
 {
-
-  
-   
     public Transform Transform => transform;
-    public float Height { get; set; }
+    [field:SerializeField]public float Height { get; set; }
     public GroundItem StartGround { get; set; }
-    public GroundItem CurrentGround{get;set;}
+    [field:SerializeField]public GroundItem CurrentGround{get;set;}
     public float startRot { get; set; }
-    public void Init()
+    private void Start()
     {
-        
+        GameManager.OnResetLevel += () =>
+        {
+            Init(StartGround,startRot,StartGround.Height);
+        };
     }
 
-    public void SetSetup(GroundItem startGround, float startRot,float Height)
+    public void Init(GroundItem startGround, float startRot,float Height)
     {
         StartGround = startGround;
         CurrentGround = startGround;

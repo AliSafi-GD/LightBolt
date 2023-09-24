@@ -3,41 +3,47 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GroundLight : MonoBehaviour
+namespace Ground
 {
-    [SerializeField] Material mat;
-    [SerializeField] Material turnOffLightMat;
-    [SerializeField] Material turnOnLightMat;
+    public class GroundLight : MonoBehaviour
+    {
+        [SerializeField] Material turnOffLightMat;
+        [SerializeField] Material turnOnLightMat;
+        public bool isTurnOn;
 
-    private void Start()
-    {
-        Init();
-        GameManager.OnResetLevel += TurnOffLight;
-    }
+        private void Start()
+        {
+            Init();
+            GameManager.OnResetLevel += TurnOffLight;
+        }
 
-    void Init()
-    {
-        ChangeLight(turnOffLightMat);
-    }
+        void Init()
+        {
+            ChangeLight(turnOffLightMat);
+        }
 
-    private void Update()
-    {
-          //ChangeLight(turnOffLightMat);
-    }
+        private void OnDestroy()
+        {
+            GameManager.OnResetLevel -= TurnOffLight;
+        }
 
-    void ChangeLight(Material mat)
-    {
-        var m = new Material(mat);
-        m.name = mat.name;
-        GetComponent<Renderer>().material = m;
-    }
+        void ChangeLight(Material mat)
+        {
+            var m = new Material(mat);
+            m.name = mat.name;
+            GetComponent<Renderer>().material = m;
+        }
 
-    public void TurnOnLight()
-    {
-        ChangeLight(turnOnLightMat);
-    }
-    public void TurnOffLight()
-    {
-        ChangeLight(turnOffLightMat);
+        public void TurnOnLight()
+        {
+            isTurnOn = true;
+            ChangeLight(turnOnLightMat);
+        }
+
+        public void TurnOffLight()
+        {
+            isTurnOn = false;
+            ChangeLight(turnOffLightMat);
+        }
     }
 }

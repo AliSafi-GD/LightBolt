@@ -16,7 +16,7 @@ public class MainMenu : MonoBehaviour
     public Transform seasonContainer;
     public Transform levelsContainer;
 
-    private List<GameManager.Season> Seasons => ResourceManager.Instance.Levels.Seasons;
+    private List<Levels.Season> Seasons => ResourceManager.Instance.Levels.Seasons;
 
     [SerializeField] private List<Btn> levelsBtn;
     private void Start()

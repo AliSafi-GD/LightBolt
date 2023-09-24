@@ -71,7 +71,9 @@ MonoBehaviour:
   <CommandsRequired>k__BackingField: 0000000004000000010000000200000005000000
   CommandsManagers:
   - name: Main
+    LimitCount: 12
   - name: Program
+    LimitCount: 8
 --- !u!1001 &1108593591674747705
 PrefabInstance:
   m_ObjectHideFlags: 0

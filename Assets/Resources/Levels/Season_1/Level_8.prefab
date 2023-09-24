@@ -73,6 +73,9 @@ MonoBehaviour:
   <StartGround>k__BackingField: {fileID: 3320944399157393814}
   <StartAngle>k__BackingField: 0
   <CommandsRequired>k__BackingField: 0000000004000000010000000200000003000000
+  CommandsManagers:
+  - name: Main
+    LimitCount: 12
 --- !u!1001 &4502056031694042987
 PrefabInstance:
   m_ObjectHideFlags: 0
