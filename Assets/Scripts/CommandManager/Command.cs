@@ -12,18 +12,19 @@ public class Forward : ICommand
     public void Execute(RequestData requestData, Action<CommandStatus> complete)
     {
         this.complete = complete;
-        if (requestData.CharacterData.forwardGround == null)
+        var forwardGround = requestData.GroundsHelper.FindForwardGround(requestData.CharacterData.StartGround,requestData.CharacterView.Transform);
+        if (forwardGround == null)
         {
             complete?.Invoke(CommandStatus.Reject);
             return;
         }
-        if (requestData.CharacterData.Height == requestData.CharacterData.forwardGround.Height)
+        if (requestData.CharacterData.Height == forwardGround.Height)
         {
-            var NextMove = requestData.CharacterData.NextMove;
+            var NextMove = requestData.CharacterView.Transform.position;
             var character = requestData.CharacterView.Transform;
             NextMove += character.forward;
-            requestData.CharacterData.NextMove = NextMove;
-            requestData.CharacterData.currentGround = requestData.CharacterData.forwardGround;
+            //requestData.CharacterData.NextMove = NextMove;
+            requestData.CharacterData.CurrentGround = forwardGround;
             MonoHelper.Move(character,NextMove,()=>complete?.Invoke(CommandStatus.Accept));
         }
         else
@@ -41,10 +42,10 @@ public class RotateClockwise : ICommand
     public void Execute(RequestData requestData, Action<CommandStatus> complete)
     {
         this.complete = complete;
-        var NextRotate = requestData.CharacterData.NextRotate;
+        var NextRotate = requestData.CharacterView.Transform.rotation;
         var character = requestData.CharacterView.Transform;
         NextRotate = Quaternion.AngleAxis(NextRotate.eulerAngles.y + 90,Vector3.up);
-        requestData.CharacterData.NextRotate = NextRotate;
+        //requestData.CharacterData.NextRotate = NextRotate;
         MonoHelper.Rotate(character,NextRotate,()=>complete?.Invoke(CommandStatus.Accept));
     }
 }
@@ -57,10 +58,10 @@ public class RotateCounterClockwise : ICommand
     public void Execute(RequestData requestData, Action<CommandStatus> complete)
     {
         this.complete = complete;
-        var NextRotate = requestData.CharacterData.NextRotate;
+        var NextRotate = requestData.CharacterView.Transform.rotation;
         var character = requestData.CharacterView.Transform;
         NextRotate = Quaternion.AngleAxis(NextRotate.eulerAngles.y - 90,Vector3.up);
-        requestData.CharacterData.NextRotate = NextRotate;
+        //requestData.CharacterData.NextRotate = NextRotate;
         MonoHelper.Rotate(character,NextRotate,()=>complete?.Invoke(CommandStatus.Accept));
     }
 }
@@ -73,17 +74,16 @@ public class Jump : ICommand
     public void Execute(RequestData requestData, Action<CommandStatus> complete)
     {
         this.complete = complete;
-
-        if (requestData.CharacterData.Height + 0.5f == requestData.CharacterData.forwardGround.Height ||
-            requestData.CharacterData.Height - 0.5f == requestData.CharacterData.forwardGround.Height)
+        var forwardGround = requestData.GroundsHelper.FindForwardGround(requestData.CharacterData.StartGround,requestData.CharacterView.Transform);
+        if (requestData.CharacterData.Height + 0.5f == forwardGround.Height ||
+            requestData.CharacterData.Height - 0.5f == forwardGround.Height)
         {
-            requestData.CharacterData.NextMove += requestData.CharacterView.Transform.forward;
-            requestData.CharacterData.NextMove = new Vector3(requestData.CharacterData.NextMove.x,
-                requestData.CharacterData.forwardGround.Height, requestData.CharacterData.NextMove.z);
-            requestData.CharacterData.Height = requestData.CharacterData.forwardGround.Height;
-            requestData.CharacterData.currentGround = requestData.CharacterData.forwardGround;
-            MonoHelper.Move(requestData.CharacterView.Transform, requestData.CharacterData.NextMove,
-                () => complete?.Invoke(CommandStatus.Accept));
+            var NextMove = requestData.CharacterView.Transform.position;
+            NextMove += requestData.CharacterView.Transform.forward;
+            NextMove.y = forwardGround.Height;
+            requestData.CharacterData.Height = forwardGround.Height;
+            requestData.CharacterData.CurrentGround = forwardGround;
+            MonoHelper.Move(requestData.CharacterView.Transform, NextMove, () => complete?.Invoke(CommandStatus.Accept));
         }
         else
         {
@@ -103,9 +103,9 @@ public class TurnOnLight : ICommand
     public void Execute(RequestData requestData, Action<CommandStatus> complete)
     {
         this.complete = complete;
-        if (requestData.CharacterData.currentGround.GetComponent<GroundLight>())
+        if (requestData.CharacterData.CurrentGround.GetComponent<GroundLight>())
         {
-            requestData.CharacterData.currentGround.GetComponent<GroundLight>().TurnOnLight();
+            requestData.CharacterData.CurrentGround.GetComponent<GroundLight>().TurnOnLight();
             complete?.Invoke(CommandStatus.Accept);
             GameManager.OnTurnOnLight();
         }
@@ -155,4 +155,5 @@ public class RequestData
 {
     public ICharacterView CharacterView;
     public ICharacterData CharacterData;
+    public GroundsHelper GroundsHelper;
 }

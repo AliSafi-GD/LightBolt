@@ -12,6 +12,7 @@ public class GroundLight : MonoBehaviour
     private void Start()
     {
         Init();
+        GameManager.OnResetLevel += TurnOffLight;
     }
 
     void Init()
@@ -34,5 +35,9 @@ public class GroundLight : MonoBehaviour
     public void TurnOnLight()
     {
         ChangeLight(turnOnLightMat);
+    }
+    public void TurnOffLight()
+    {
+        ChangeLight(turnOffLightMat);
     }
 }

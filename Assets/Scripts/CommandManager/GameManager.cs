@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour , IInitializable
 {
     // ToDo : موقع بردن اگر مراحل یک فصل تمام شده بودن به صفحه انتخاب فصل ها برود
     // event 
+    public static event Action OnResetLevel;
     public static Action OnTurnOnLight;
     // Game Resource
     [System.Serializable]
@@ -31,18 +32,19 @@ public class GameManager : MonoBehaviour , IInitializable
     [SerializeField] private GameObject CommandsUsableContainer;
     [SerializeField] private List<CommandItemUI> CommandUsable = new List<CommandItemUI>();
     [SerializeField] private List<CommandItemUI> CommandsStack = new List<CommandItemUI>();
-    
+
+    [SerializeField] private GroundsHelper groundsHelper;
     
     // Game UI
     public GameObject WinBtn;
     
-    public CharacterLogic _characterLogic;
+    //public CharacterLogic _characterLogic;
     public List<GroundItem> CurrentLevelGroundsItems => CurrentLevelView.Grounds;
 
     // managers
     public static List<CommandsManager> CommandsManager;
     private CommandsManager currentCommandsManager;
-    public CharacterMovement _character;
+    public Character _character;
 
 
     private List<IInitializable> Initializables = new List<IInitializable>();
@@ -58,6 +60,8 @@ public class GameManager : MonoBehaviour , IInitializable
         OnTurnOnLight += _OnTurnOnLight;
         CreateLevel(levelData);
         CreateUsableUICommands();
+
+        groundsHelper = new GroundsHelper(CurrentLevelView.Grounds);
         CommandsManager = levelData.GetLevelPrefabFromResource.CommandsManagers;
         foreach (var initializable in Initializables)
         {
@@ -83,9 +87,9 @@ public class GameManager : MonoBehaviour , IInitializable
         Destroy(CurrentLevelView.gameObject);
         CreateLevel(ResourceManager.Instance.Levels.GetLevel(currentLevelData.Seasion,currentLevelData.LevelNumber+1));
        
-        _characterLogic.grounds = CurrentLevelGroundsItems;
-        _character.StartGround = CurrentLevelView.StartGround;
-        _character.startRot = CurrentLevelView.StartAngle;
+        //_characterLogic.grounds = CurrentLevelGroundsItems;
+        //_character.StartGround = CurrentLevelView.StartGround;
+        //_character.startRot = CurrentLevelView.StartAngle;
         Reset();
         
         foreach (var commandItemUI in CommandsStack)
@@ -127,10 +131,12 @@ public class GameManager : MonoBehaviour , IInitializable
     {
         ChangeActiveContainer(labelContainer);
         currentCommandsManager = CommandsManager[0];
-        _characterLogic = new CharacterLogic(_character, _character);
-        _characterLogic.grounds = CurrentLevelGroundsItems;
-        _character.StartGround = CurrentLevelView.StartGround;
-        _character.startRot = CurrentLevelView.StartAngle;
+        _character.SetSetup(CurrentLevelView.StartGround,CurrentLevelView.StartAngle,CurrentLevelView.StartGround.Height);
+        //_characterLogic = new CharacterLogic(_character, _character);
+        //_characterLogic.grounds = CurrentLevelGroundsItems;
+        //_character.StartGround = CurrentLevelView.StartGround;
+        //_character.currentGround = CurrentLevelView.StartGround;
+        //_character.startRot = CurrentLevelView.StartAngle;
     }
 
     public void RunCommands()
@@ -138,7 +144,8 @@ public class GameManager : MonoBehaviour , IInitializable
         CommandsManager[0].RunCommands(new RequestData()
         {
             CharacterData = _character,
-            CharacterView = _character
+            CharacterView = _character,
+            GroundsHelper = groundsHelper
         }, () =>
         {
             var isWin = CheckWin(CurrentLevelView);
@@ -149,15 +156,19 @@ public class GameManager : MonoBehaviour , IInitializable
 
     public void Reset()
     {
-        _character.Reset();
+        OnResetLevel?.Invoke();
+        CurrentLevelView.CurrentLightTurnedOn = 0;
+        _character.SetSetup(CurrentLevelView.StartGround,CurrentLevelView.StartAngle,CurrentLevelView.StartGround.Height);
         //_commandsManager.Reset();
     }
 
     private void Update()
     {
-        _characterLogic.FindForwardGround();
+        //_characterLogic.FindForwardGround();
         if (Input.GetKeyDown(KeyCode.KeypadEnter))
             RunCommands();
+        
+        //groundsHelper.forwardGround = groundsHelper.FindForwardGround( groundsHelper.currentGround, _character.Transform);
     }
 
     public void ChangeActiveContainer(GameObject container) => activeContainer = container;
